@@ -29,16 +29,36 @@ class TodoController extends Controller
         $limit = max(1, (int) request()->query('limit', 10));
         $page = max(1, (int) request()->query('page', 1));
         $search = request()->query('search');
-
-        // Total pages
-        $total_pages = ceil($count / $limit);
+        $isCompleted = request()->query('is_completed');
+        $sortBy = request()->query('sort_by', 'created_at');
+        $sortOrder = request()->query('sort_order', 'asc');
 
         // Apply search filter if search term is provided
         if ($search) {
-            $query->where('title', 'like', '%'.$search.'%')
-                ->orWhere('description', 'like', '%'.$search.'%');
-            $count = $query->count();
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
+            });
         }
+
+        // Apply is_completed filter if provided
+        if ($isCompleted !== null) {
+            $isCompleted = filter_var($isCompleted, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if ($isCompleted !== null) {
+                $query->where('is_completed', $isCompleted);
+            }
+        }
+
+        // Apply sorting
+        if (in_array($sortBy, ['id', 'title', 'created_at', 'updated_at'])) {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        // Recalculate total count after all filters
+        $count = $query->count();
+
+        // Total pages
+        $total_pages = ceil($count / $limit);
 
         // Calculate offset for pagination
         $offset = ($page - 1) * $limit;
@@ -52,6 +72,13 @@ class TodoController extends Controller
         $from = ($page - 1) * $limit + 1;
         $to = min($page * $limit, $count); // Ensure 'to' is not more than total count
 
+        // If no todos set every meta data to zero
+        if ($todos->isEmpty()) {
+            $from = 0;
+            $to = 0;
+            $count = 0;
+        }
+
         // Prepare and return the response
         return $this->successResponse(
             msg: 'To-dos retrieved successfully.',
@@ -59,7 +86,7 @@ class TodoController extends Controller
             meta: [
                 'from' => $from > $count ? 0 : $from,
                 'to' => $to > $count ? 0 : $to,
-                'total' => $count, // Correct total count
+                'total' => $count,
                 'current_page' => (int) $page,
                 'limit' => $limit,
                 'last_page' => $total_pages,
