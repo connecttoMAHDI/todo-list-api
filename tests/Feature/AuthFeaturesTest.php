@@ -1,14 +1,11 @@
 <?php
 
-use App\Models\User;
-use Illuminate\Support\Facades\Http;
-
 test('register test', function () {
     // Arrange: create the payload with some random data
     $payload = [
         'name' => 'John Doe',
         'email' => 'john@example.com',
-        'password' => 'Password@1234'
+        'password' => 'Password@1234',
     ];
 
     // Act: hit the register route

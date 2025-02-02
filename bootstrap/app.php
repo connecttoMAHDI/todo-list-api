@@ -3,18 +3,21 @@
 use App\Http\Middleware\AcceptJsonMiddleware;
 use App\Http\Middleware\CookieToHeaderMiddleware;
 use App\Traits\HttpResponses;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        /* web: __DIR__ . '/../routes/web.php', */
+        web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
         apiPrefix: 'api',
         commands: __DIR__.'/../routes/console.php',
@@ -35,6 +38,30 @@ return Application::configure(basePath: dirname(__DIR__))
             return $httpResponses->failureResponse(
                 msg: $e->getMessage(),
                 statusCode: Response::HTTP_BAD_REQUEST
+            );
+        });
+
+        // 401
+        $exceptions->renderable(function (AuthenticationException $e, $request) use ($httpResponses) {
+            return $httpResponses->failureResponse(
+                msg: $e->getMessage(),
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        });
+
+        // 401
+        $exceptions->renderable(function (JWTException $e, $request) use ($httpResponses) {
+            return $httpResponses->failureResponse(
+                msg: $e->getMessage(),
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        });
+
+        // 403
+        $exceptions->renderable(function (AccessDeniedHttpException $e, $request) use ($httpResponses) {
+            return $httpResponses->failureResponse(
+                msg: $e->getMessage(),
+                statusCode: Response::HTTP_FORBIDDEN
             );
         });
 

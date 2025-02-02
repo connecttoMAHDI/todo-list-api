@@ -10,6 +10,6 @@ Route::get('/', function () {
     };
 
     return $res->successResponse(
-        'Welcome to Todo Listing API'
+        'Welcome to Todo List API'
     );
 });
