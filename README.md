@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project is a sample solution to the [Todo Listing API](https://roadmap.sh/projects/todo-list-api) challenge from [roadmap.sh](https://roadmap.sh). It provides authentication and todo management features, allowing users to register, log in, and manage their to-do lists efficiently.
+This project is a sample solution to the [Todo List API](https://roadmap.sh/projects/todo-list-api) challenge from [roadmap.sh](https://roadmap.sh). It provides authentication and todo management features, allowing users to register, log in, and manage their to-do lists efficiently.
 
 ## Features
 
@@ -35,8 +35,8 @@ Follow these steps to set up and run the API:
 1. Clone the repository:
 
    ```sh
-   git clone <repository-url>
-   cd todo-listing-api
+   git clone https://github.com/connecttoMAHDI/todo-list-api
+   cd todo-list-api
    ```
 
 2. Install dependencies:
